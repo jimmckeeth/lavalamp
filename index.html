@@ -21,6 +21,12 @@
       display: block;
       width: 100%;
       height: 100%;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    #blob-canvas.dragging {
+      cursor: grabbing;
     }
 
     #toggle-controls {
@@ -66,7 +72,7 @@
     <p id='toggle-controls' onclick="toggleControls()">≡</p>
     <div id="controls">
       <div class="control-row">
-        <input type="range" id="num-blobs" name="num-blobs" min="2" max="50" value="25">
+        <input type="range" id="num-blobs" name="num-blobs" min="0" max="50" value="25">
         <label for="volume">Blobs</label>
       </div>
       <div class="control-row">
@@ -102,7 +108,7 @@
   </div>
   <canvas id="blob-canvas"></canvas>
   <script>
-    var showControls = true;
+    var showControls = false;
     function updatedControls()
     {
       document.documentElement.style.setProperty('--showControls', showControls ? 'block' : 'none');

@@ -20,6 +20,7 @@ function resizeCanvas() {
     blobs.forEach(blob => {
       blob.x *= width / oldWidth;
       blob.y *= height / oldHeight;
+      clampBlobToCanvas(blob);
     });
   }
 
@@ -35,6 +36,9 @@ var maxBlobSize = 80;
 var blobSpeed = 2;
 var blobStickiness = 1.0;
 var blobsHandle, color1Handle, color2Handle;
+var draggedBlob = null;
+var dragOffsetX = 0;
+var dragOffsetY = 0;
 var color1 = hexToRGBPercentage(document.getElementById('color1').value);
 var color2 = hexToRGBPercentage(document.getElementById('color2').value);
 var bgColor = hexToRGBPercentage(document.documentElement.style.getPropertyValue('--bg'));
@@ -90,6 +94,100 @@ color2Picker.addEventListener('input', evt => {
 const bgColorPicker = document.getElementById('bg-color');
 bgColorPicker.addEventListener('input', evt => {
   bgColor = hexToRGBPercentage(evt.target.value);
+});
+
+function getCanvasPoint(evt) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (evt.clientX - rect.left) * width / rect.width,
+    y: height - (evt.clientY - rect.top) * height / rect.height,
+  };
+}
+
+function getBlobAtPoint(point) {
+  let closestBlob = null;
+  let closestDistance = Infinity;
+
+  blobs.forEach(blob => {
+    const dx = blob.x - point.x;
+    const dy = blob.y - point.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance <= blob.r && distance < closestDistance) {
+      closestBlob = blob;
+      closestDistance = distance;
+    }
+  });
+
+  return closestBlob;
+}
+
+function clampBlobToCanvas(blob) {
+  blob.x = blob.r * 2 >= width
+    ? width / 2
+    : Math.min(width - blob.r, Math.max(blob.r, blob.x));
+  blob.y = blob.r * 2 >= height
+    ? height / 2
+    : Math.min(height - blob.r, Math.max(blob.r, blob.y));
+}
+
+function syncBlobCountControl() {
+  numBlobsSlider.max = Math.max(Number(numBlobsSlider.max), blobs.length);
+  numBlobsSlider.value = blobs.length;
+}
+
+canvas.addEventListener('pointerdown', evt => {
+  if (evt.button !== 0) return;
+
+  const point = getCanvasPoint(evt);
+  draggedBlob = getBlobAtPoint(point);
+  if (!draggedBlob) return;
+
+  dragOffsetX = draggedBlob.x - point.x;
+  dragOffsetY = draggedBlob.y - point.y;
+  canvas.setPointerCapture(evt.pointerId);
+  canvas.classList.add('dragging');
+  evt.preventDefault();
+});
+
+canvas.addEventListener('pointermove', evt => {
+  if (!draggedBlob) return;
+
+  const point = getCanvasPoint(evt);
+  draggedBlob.x = point.x + dragOffsetX;
+  draggedBlob.y = point.y + dragOffsetY;
+  clampBlobToCanvas(draggedBlob);
+});
+
+function stopDragging(evt) {
+  if (!draggedBlob) return;
+
+  draggedBlob = null;
+  canvas.classList.remove('dragging');
+  if (canvas.hasPointerCapture(evt.pointerId)) {
+    canvas.releasePointerCapture(evt.pointerId);
+  }
+}
+
+canvas.addEventListener('pointerup', stopDragging);
+canvas.addEventListener('pointercancel', stopDragging);
+
+canvas.addEventListener('dblclick', evt => {
+  const point = getCanvasPoint(evt);
+  const clickedBlob = getBlobAtPoint(point);
+
+  if (clickedBlob) {
+    blobs.splice(blobs.indexOf(clickedBlob), 1);
+  } else {
+    const blob = getBlob();
+    blob.x = point.x;
+    blob.y = point.y;
+    clampBlobToCanvas(blob);
+    blobs.push(blob);
+  }
+
+  syncBlobCountControl();
+  startAnimation();
+  evt.preventDefault();
 });
 
 function hexToRGBPercentage(h) {
@@ -163,20 +261,31 @@ function moveBlob(blob) {
   blob.x += blob.vx;
   blob.y += blob.vy;
 
-  // stay in bounds, add some noise
-  if (blob.x < blob.r) { // left side
-    blob.vx *= -1;
-    blob.x += moreRandom() * 10;
+  if (blob.r * 2 >= width) {
+    blob.x = width / 2;
+  } else if (blob.x < blob.r) {
+    blob.vx = Math.abs(blob.vx);
+    blob.x = Math.min(width - blob.r, blob.r + moreRandom() * 10);
+  } else if (blob.x > width - blob.r) {
+    blob.vx = -Math.abs(blob.vx);
+    blob.x = Math.max(blob.r, width - blob.r - moreRandom() * 10);
   }
-  if (blob.x > width - blob.r) { // right side
-    blob.vx *= -1;
-    blob.x -= moreRandom() * 10;
+
+  if (blob.r * 2 >= height) {
+    blob.y = height / 2;
+  } else if (blob.y < blob.r) {
+    blob.vy = Math.abs(blob.vy);
+    blob.y = blob.r;
+  } else if (blob.y > height - blob.r) {
+    blob.vy = -Math.abs(blob.vy);
+    blob.y = height - blob.r;
   }
-  if (blob.y < blob.r || blob.y > height - blob.r) blob.vy *= -1;
 }
 
 function loop() {
-  blobs.forEach(moveBlob);
+  blobs.forEach(blob => {
+    if (blob !== draggedBlob) moveBlob(blob);
+  });
 
   const blobData = blobs.map(blob => {
     return [blob.x, blob.y, blob.r];
@@ -209,7 +318,7 @@ function getFragmentShader() {
   const float WIDTH = ${width >> 0}.0;
   const float HEIGHT = ${height >> 0}.0;
 
-  uniform vec3 blobs[${blobs.length}];
+  uniform vec3 blobs[${Math.max(1, blobs.length)}];
   uniform vec3 color1;
   uniform vec3 color2;
   uniform vec3 bgColor;
