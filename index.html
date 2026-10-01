@@ -9,20 +9,9 @@
       background-color: var(--bg);
     }
 
-    h1 {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      margin: 0px;
-      font-size: 80px;
-      color: var(--color);
-      mix-blend-mode: soft-light;
-      text-align: center;
-    }
-
     #toggle-controls {
       margin: 0;
+      font-size: 30px;
       color: #006aff;
       cursor: pointer;
       width: fit-content;
@@ -32,8 +21,8 @@
       position: absolute;
       top: 0;
       left: 0;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.5);
+      padding: 30px;
+      background: var(--controls-bg);
       border-radius: 20px;
     }
 
@@ -89,31 +78,24 @@
         <input type="color" id="bg-color" name="bg-color" value="#000000" oninput="setBgColor(this.value)">
         <label for="bg-color">Background color</label>
       </div>
-<!--      <div class="control-row">
-        <input type="color" id="text-color" name="text-color" value="#000000" oninput="setTextColor(this.value)">
-        <label for="text-color">Text color</label>
-      </div>-->
     </div>
   </div>
   <canvas id="blob-canvas"></canvas>
-  <!--<h1>Lava Lamp</h1>-->
   <script>
     var showControls = true;
     document.documentElement.style.setProperty('--showControls', showControls ? 'block' : 'none');
+    document.documentElement.style.setProperty('--controls-bg', showControls ? '#77777777': '#00000000');
     document.documentElement.style.setProperty('--bg', '#000000');
-    //document.documentElement.style.setProperty('--color', '#000000');
 
     function setBgColor(val) {
       document.documentElement.style.setProperty('--bg', val);
     }
 
-    function setTextColor(val) {
-      document.documentElement.style.setProperty('--color', val);
-    }
 
     function toggleControls() {
       showControls = !showControls;
       document.documentElement.style.setProperty('--showControls', showControls ? 'block' : 'none');
+      document.documentElement.style.setProperty('--controls-bg', showControls ? '#77777777': '#00000000');
       document.getElementById('toggle-controls').innerHTML = showControls ? '≡' : '≡';
     }
   </script>

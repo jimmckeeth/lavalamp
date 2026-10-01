@@ -101,20 +101,30 @@ function getBlobs(numBlobs) {
   return blobs.slice(0, numBlobs);
 }
 
+function moreRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+
+  // Divide by the maximum
+  //   32-bit unsigned integer + 1
+  //   to get a range of [0, 1)
+  return array[0] / (0xFFFFFFFF + 1);
+}
+
 function getBlobRadius() {
   const range = maxBlobSize - minBlobSize;
-  return Math.random() * range + minBlobSize;
+  return moreRandom() * range + minBlobSize;
 }
 
 function getBlob() {
   let vx, vy;
   do {
-    vx = (Math.random() - 0.5) * blobSpeed;
-    vy = (Math.random() - 0.5) * blobSpeed;
+    vx = (moreRandom() - 0.5) * blobSpeed;
+    vy = (moreRandom() - 0.5) * blobSpeed;
   } while (vx < 0.05 && vy < 0.05);
   return {
-    x: Math.random() * width,
-    y: Math.random() * height,
+    x: moreRandom() * width,
+    y: moreRandom() * height,
     vx: vx,
     vy: vy,
     r: getBlobRadius(),
@@ -128,11 +138,11 @@ function moveBlob(blob) {
   // stay in bounds, add some noise
   if (blob.x < blob.r) { // left side
     blob.vx *= -1;
-    blob.x += Math.random() * 10;
+    blob.x += moreRandom() * 10;
   }
   if (blob.x > width - blob.r) { // right side
     blob.vx *= -1;
-    blob.x -= Math.random() * 10;
+    blob.x -= moreRandom() * 10;
   }
   if (blob.y < blob.r || blob.y > height - blob.r) blob.vy *= -1;
 }
