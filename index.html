@@ -58,19 +58,19 @@
     <p id='toggle-controls' onclick="toggleControls()">≡</p>
     <div id="controls">
       <div class="control-row">
-        <input type="range" id="num-blobs" name="num-blobs" min="2" max="50" value="10">
+        <input type="range" id="num-blobs" name="num-blobs" min="2" max="50" value="25">
         <label for="volume">Blobs</label>
       </div>
       <div class="control-row">
-        <input type="range" id="min-blob-size" name="min-blob-size" min="5" max="100" value="10">
+        <input type="range" id="min-blob-size" name="min-blob-size" min="5" max="100" value="50">
         <label for="min-blob-size">Min blob size</label>
       </div>
       <div class="control-row">
-        <input type="range" id="max-blob-size" name="max-blob-size" min="5" max="80" value="60">
+        <input type="range" id="max-blob-size" name="max-blob-size" min="5" max="100" value="80">
         <label for="max-blob-size">Max blob size</label>
       </div>
       <div class="control-row">
-        <input type="range" id="blob-speed" name="blob-speed" min="1" max="5" value="2">
+        <input type="range" id="blob-speed" name="blob-speed" min="1" max="10" value="2">
         <label for="blob-speed">Blob speed</label>
       </div>
       <div class="control-row">
@@ -78,21 +78,21 @@
         <label for="blob-stickiness">Blob stickiness</label>
       </div>
       <div class="control-row">
-        <input type="color" id="color1" name="color2" value="#e66465">
+        <input type="color" id="color1" name="color2" value="#ee0000">
         <label for="color1">Color 1</label>
       </div>
       <div class="control-row">
-        <input type="color" id="color2" name="color2" value="#5235a1">
+        <input type="color" id="color2" name="color2" value="#7700ee">
         <label for="color2">Color 2</label>
       </div>
       <div class="control-row">
-        <input type="color" id="bg-color" name="bg-color" value="#ebebeb" oninput="setBgColor(this.value)">
+        <input type="color" id="bg-color" name="bg-color" value="#000000" oninput="setBgColor(this.value)">
         <label for="bg-color">Background color</label>
       </div>
-      <div class="control-row">
+<!--      <div class="control-row">
         <input type="color" id="text-color" name="text-color" value="#000000" oninput="setTextColor(this.value)">
         <label for="text-color">Text color</label>
-      </div>
+      </div>-->
     </div>
   </div>
   <canvas id="blob-canvas"></canvas>
@@ -100,8 +100,8 @@
   <script>
     var showControls = true;
     document.documentElement.style.setProperty('--showControls', showControls ? 'block' : 'none');
-    document.documentElement.style.setProperty('--bg', '#ebebeb');
-    document.documentElement.style.setProperty('--color', '#000000');
+    document.documentElement.style.setProperty('--bg', '#000000');
+    //document.documentElement.style.setProperty('--color', '#000000');
 
     function setBgColor(val) {
       document.documentElement.style.setProperty('--bg', val);
