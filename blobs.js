@@ -1,8 +1,32 @@
-// based on https://codepen.io/TC5550/pen/WNNWoaO
+// Part of https://github.com/jimmckeeth/lavalamp
 
 const canvas = document.getElementById("blob-canvas");
-var width = canvas.width = window.innerWidth * 0.95;
-var height = canvas.height = window.innerHeight * 0.95;
+var width = 0;
+var height = 0;
+
+function resizeCanvas() {
+  const oldWidth = width;
+  const oldHeight = height;
+
+  width = Math.max(1, canvas.clientWidth);
+  height = Math.max(1, canvas.clientHeight);
+
+  if (canvas.width === width && canvas.height === height) return false;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  if (blobs && oldWidth && oldHeight) {
+    blobs.forEach(blob => {
+      blob.x *= width / oldWidth;
+      blob.y *= height / oldHeight;
+    });
+  }
+
+  return true;
+}
+
+resizeCanvas();
 const gl = canvas.getContext('webgl');
 
 var blobs;
@@ -84,6 +108,10 @@ function startAnimation() {
   }
   loop();
 }
+
+window.addEventListener('resize', () => {
+  if (resizeCanvas()) startAnimation();
+});
 
 function getBlobs(numBlobs) {
   // if we have no blobs yet, generate new ones
@@ -216,6 +244,8 @@ function getFragmentShader() {
 }
 
 function webglSetup() {
+  gl.viewport(0, 0, width, height);
+
   var vertexShader = compileShader(getVertexShader(), gl.VERTEX_SHADER);
   var fragmentShader = compileShader(getFragmentShader(), gl.FRAGMENT_SHADER);
 

@@ -1,12 +1,26 @@
 <html>
-
+<!-- Part of https://github.com/jimmckeeth/lavalamp -->
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lava Lamp Simulator</title>
   <link rel="icon" type="image/png" href="volcano.png">
   <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
     body {
       background-color: var(--bg);
+    }
+
+    #blob-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
     }
 
     #toggle-controls {
@@ -29,6 +43,11 @@
     #controls {
       display: var(--showControls);
       margin-top: 15px;
+    }
+
+    .source-row {
+      padding-top: 10px;
+      text-align: center;
     }
 
     .control-row {
@@ -78,13 +97,18 @@
         <input type="color" id="bg-color" name="bg-color" value="#000000" oninput="setBgColor(this.value)">
         <label for="bg-color">Background color</label>
       </div>
+      <div class="source-row"><a href="https://github.com/jimmckeeth/lavalamp">Get the source</a></div>
     </div>
   </div>
   <canvas id="blob-canvas"></canvas>
   <script>
     var showControls = true;
-    document.documentElement.style.setProperty('--showControls', showControls ? 'block' : 'none');
-    document.documentElement.style.setProperty('--controls-bg', showControls ? '#77777777': '#00000000');
+    function updatedControls()
+    {
+      document.documentElement.style.setProperty('--showControls', showControls ? 'block' : 'none');
+      document.documentElement.style.setProperty('--controls-bg', showControls ? '#ffffff77': '#00000000');
+    }
+    updatedControls();
     document.documentElement.style.setProperty('--bg', '#000000');
 
     function setBgColor(val) {
@@ -94,8 +118,7 @@
 
     function toggleControls() {
       showControls = !showControls;
-      document.documentElement.style.setProperty('--showControls', showControls ? 'block' : 'none');
-      document.documentElement.style.setProperty('--controls-bg', showControls ? '#77777777': '#00000000');
+      updatedControls();
       document.getElementById('toggle-controls').innerHTML = showControls ? '≡' : '≡';
     }
   </script>
